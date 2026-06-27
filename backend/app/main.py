@@ -42,11 +42,15 @@ async def health_check():
 @app.get("/db-check")
 async def db_check():
     try:
-        from app.database.base import engine
+        from app.database.base import engine, Base
+        from app.models import User, Resume, CoverLetter, Template
+        from sqlalchemy import text, inspect
         with engine.connect() as conn:
-            from sqlalchemy import text
             conn.execute(text("SELECT 1"))
-        return {"db": "connected"}
+        inspector = inspect(engine)
+        tables = inspector.get_table_names()
+        Base.metadata.create_all(bind=engine)
+        return {"db": "connected", "tables": tables}
     except Exception as e:
         return {"db": "failed", "error": str(e)}
 
