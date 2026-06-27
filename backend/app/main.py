@@ -39,16 +39,10 @@ async def health_check():
     return {"status": "healthy", "version": "1.0.0"}
 
 
-@app.on_event("startup")
-async def startup_event():
-    try:
-        from app.database.base import Base, engine
-        from app.models import User, Resume, CoverLetter, Template
-        Base.metadata.create_all(bind=engine)
-        logger.info("Database tables created/verified.")
-    except Exception as e:
-        logger.warning(
-            f"Database connection failed at startup: {e}\n"
-            "API will start but DB-dependent endpoints will fail. "
-            "Set DATABASE_URL in .env to fix."
-        )
+try:
+    from app.database.base import Base, engine
+    from app.models import User, Resume, CoverLetter, Template
+    Base.metadata.create_all(bind=engine)
+    logger.info("Database tables created/verified.")
+except Exception as e:
+    logger.warning(f"Database init failed: {e}")
