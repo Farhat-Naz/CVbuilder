@@ -47,7 +47,7 @@ export function Footer() {
           ))}
         </div>
         <div className="border-t pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© 2025 CVGenerator. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} CVGenerator. All rights reserved.</p>
           <p>Built with Next.js, FastAPI & ❤️</p>
         </div>
       </div>
