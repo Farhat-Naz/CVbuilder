@@ -39,6 +39,18 @@ async def health_check():
     return {"status": "healthy", "version": "1.0.0"}
 
 
+@app.get("/db-check")
+async def db_check():
+    try:
+        from app.database.base import engine
+        with engine.connect() as conn:
+            from sqlalchemy import text
+            conn.execute(text("SELECT 1"))
+        return {"db": "connected"}
+    except Exception as e:
+        return {"db": "failed", "error": str(e)}
+
+
 try:
     from app.database.base import Base, engine
     from app.models import User, Resume, CoverLetter, Template
