@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Save, Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, Save, Eye, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ResumePreview } from "@/components/resume/ResumePreview";
@@ -18,6 +18,7 @@ import { resumeService } from "@/services/resume.service";
 import { Resume } from "@/types";
 import { toast } from "sonner";
 import { generateId } from "@/lib/utils";
+import { downloadResumeAsPDF } from "@/lib/pdf";
 
 const STEPS = [
   { id: "personal", title: "Personal Info", description: "Your contact details" },
@@ -54,11 +55,25 @@ export default function NewResumePage() {
   const [resumeData, setResumeData] = useState<Partial<Resume>>(defaultResume);
   const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const router = useRouter();
 
   const updateResume = useCallback((updates: Partial<Resume>) => {
     setResumeData((prev) => ({ ...prev, ...updates }));
   }, []);
+
+  const handleDownload = async () => {
+    try {
+      setDownloading(true);
+      setShowPreview(true);
+      await new Promise((r) => setTimeout(r, 300));
+      await downloadResumeAsPDF("resume-preview", resumeData.full_name || "resume");
+    } catch {
+      toast.error("Failed to download PDF");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -96,6 +111,9 @@ export default function NewResumePage() {
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setShowPreview(!showPreview)}>
             <Eye className="mr-2 h-4 w-4" />{showPreview ? "Hide" : "Preview"}
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleDownload} disabled={downloading}>
+            <Download className="mr-2 h-4 w-4" />{downloading ? "Generating..." : "Download PDF"}
           </Button>
           <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white" onClick={handleSave} disabled={saving}>
             <Save className="mr-2 h-4 w-4" />{saving ? "Saving..." : "Save"}
@@ -164,7 +182,7 @@ export default function NewResumePage() {
         {/* Preview */}
         <div className={`${showPreview ? "block" : "hidden lg:block"}`}>
           <div className="sticky top-4">
-            <ResumePreview resume={resumeData as Resume} />
+            <ResumePreview id="resume-preview" resume={resumeData as Resume} />
           </div>
         </div>
       </div>

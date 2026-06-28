@@ -6,7 +6,8 @@ from app.database.base import get_db
 from app.models.user import User
 from app.schemas.user import (
     UserCreate, UserResponse, TokenResponse, LoginRequest,
-    ForgotPasswordRequest, ResetPasswordRequest, VerifyEmailRequest
+    ForgotPasswordRequest, ResetPasswordRequest, VerifyEmailRequest,
+    RefreshTokenRequest,
 )
 from app.auth.password import hash_password, verify_password
 from app.auth.jwt import create_access_token, create_refresh_token, verify_token
@@ -89,8 +90,8 @@ async def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_d
 
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
-    user_id = verify_token(refresh_token, expected_type="refresh")
+async def refresh_token(data: RefreshTokenRequest, db: Session = Depends(get_db)):
+    user_id = verify_token(data.refresh_token, expected_type="refresh")
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")

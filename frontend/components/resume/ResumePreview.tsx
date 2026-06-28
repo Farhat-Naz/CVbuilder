@@ -10,16 +10,17 @@ interface Props {
   resume: Resume;
   scale?: number;
   className?: string;
+  id?: string;
 }
 
-export function ResumePreview({ resume, scale = 1, className }: Props) {
+export function ResumePreview({ resume, scale = 1, className, id }: Props) {
   const {
     full_name, email, phone, location, linkedin, portfolio, github, summary,
     experience = [], education = [], skills, projects = [], certifications = [],
   } = resume;
 
   return (
-    <div className={cn("bg-white text-gray-900 rounded-xl shadow-xl overflow-hidden", className)} style={{ transform: `scale(${scale})`, transformOrigin: "top left" }}>
+    <div id={id} className={cn("bg-white text-gray-900 rounded-xl shadow-xl overflow-hidden", className)} style={{ transform: `scale(${scale})`, transformOrigin: "top left" }}>
       <div className="p-8 text-[11px] leading-relaxed font-sans min-h-[842px]">
         {/* Header */}
         <div className="text-center mb-6 pb-4 border-b-2 border-blue-600">
