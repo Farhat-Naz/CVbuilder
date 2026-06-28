@@ -14,10 +14,10 @@ router = APIRouter(prefix="/resumes", tags=["Resumes"])
 def check_resume_limit(user: User, db: Session):
     if user.subscription_plan == "free":
         count = db.query(Resume).filter(Resume.user_id == user.id).count()
-        if count >= 2:
+        if count >= 5:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Free plan allows maximum 2 resumes. Upgrade to Pro for unlimited."
+                detail="Free plan allows maximum 5 resumes. Upgrade to Pro for unlimited."
             )
 
 

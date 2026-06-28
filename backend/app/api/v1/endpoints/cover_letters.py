@@ -15,10 +15,10 @@ router = APIRouter(prefix="/cover-letters", tags=["Cover Letters"])
 def check_cover_letter_limit(user: User, db: Session):
     if user.subscription_plan == "free":
         count = db.query(CoverLetter).filter(CoverLetter.user_id == user.id).count()
-        if count >= 2:
+        if count >= 5:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Free plan allows maximum 2 cover letters. Upgrade to Pro."
+                detail="Free plan allows maximum 5 cover letters. Upgrade to Pro."
             )
 
 

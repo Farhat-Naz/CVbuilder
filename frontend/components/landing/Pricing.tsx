@@ -13,7 +13,7 @@ const plans = [
     price: "$0",
     period: "forever",
     description: "Perfect for getting started",
-    features: ["2 resumes", "2 cover letters", "5 basic templates", "PDF export", "ATS score checker"],
+    features: ["5 resumes", "5 cover letters", "5 basic templates", "PDF export", "ATS score checker"],
     cta: "Get Started Free",
     href: "/register",
     popular: false,
