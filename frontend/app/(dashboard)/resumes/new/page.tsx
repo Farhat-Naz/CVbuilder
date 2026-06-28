@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useCallback, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Save, Eye, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -50,13 +50,19 @@ const defaultResume: Partial<Resume> = {
   references: [],
 };
 
-export default function NewResumePage() {
+function NewResumePageInner() {
   const [currentStep, setCurrentStep] = useState(0);
   const [resumeData, setResumeData] = useState<Partial<Resume>>(defaultResume);
   const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const templateId = searchParams.get("template");
+    if (templateId) updateResume({ template_id: templateId });
+  }, []);
 
   const updateResume = useCallback((updates: Partial<Resume>) => {
     setResumeData((prev) => ({ ...prev, ...updates }));
@@ -187,5 +193,13 @@ export default function NewResumePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NewResumePage() {
+  return (
+    <Suspense>
+      <NewResumePageInner />
+    </Suspense>
   );
 }

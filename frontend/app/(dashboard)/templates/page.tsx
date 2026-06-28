@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Search, Lock, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,7 @@ export default function TemplatesPage() {
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     api.get("/templates/").then((r) => setTemplates(r.data)).finally(() => setLoading(false));
@@ -126,7 +128,7 @@ export default function TemplatesPage() {
       {selected && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-card border shadow-2xl rounded-2xl px-6 py-4 flex items-center gap-4 z-50">
           <p className="text-sm font-medium">Template selected: <span className="text-blue-600">{templates.find((t) => t.id === selected)?.name}</span></p>
-          <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white" onClick={() => { toast.success("Template applied!"); }}>
+          <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white" onClick={() => router.push(`/resumes/new?template=${selected}`)}>
             Use Template
           </Button>
           <Button size="sm" variant="outline" onClick={() => setSelected(null)}>Cancel</Button>
