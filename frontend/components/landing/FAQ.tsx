@@ -6,7 +6,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const faqs = [
-  { q: "Is CVGenerator really free?", a: "Yes! Our free plan lets you create 2 resumes and 2 cover letters with basic templates and PDF export. No credit card required." },
+  { q: "Is CVGenerator really free?", a: "Yes! Our free plan lets you create 5 resumes and 5 cover letters with basic templates and PDF export. No credit card required." },
   { q: "Are the resumes ATS-friendly?", a: "Absolutely. All our templates are designed to pass Applicant Tracking Systems. We use clean formatting, standard fonts, and proper heading structure." },
   { q: "How does the AI resume writer work?", a: "Our AI analyzes your job title, experience, and skills to generate professional summaries, bullet points, and cover letters tailored to your target role." },
   { q: "Can I export my resume to Word/DOCX?", a: "Yes, Pro and Premium plans support PDF, DOCX, TXT, and Markdown exports. Free plan includes PDF export." },

@@ -11,7 +11,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 const plans = [
-  { id: "free", name: "Free", price: "$0/mo", features: ["2 resumes", "2 cover letters", "5 templates", "PDF export"], current: true },
+  { id: "free", name: "Free", price: "$0/mo", features: ["5 resumes", "5 cover letters", "5 templates", "PDF export"], current: true },
   { id: "pro", name: "Pro", price: "$9/mo", features: ["Unlimited resumes", "All templates", "AI tools", "All exports"], popular: true },
   { id: "premium", name: "Premium", price: "$19/mo", features: ["Everything in Pro", "Analytics", "API access", "Priority support"] },
 ];
@@ -39,7 +39,7 @@ export default function SettingsPage() {
               <div>
                 <p className="font-semibold capitalize">{user?.subscription_plan || "Free"} Plan</p>
                 <p className="text-sm text-muted-foreground">
-                  {user?.subscription_plan === "free" ? "2 resumes, 2 cover letters" : "Unlimited resumes and cover letters"}
+                  {user?.subscription_plan === "free" ? "5 resumes, 5 cover letters" : "Unlimited resumes and cover letters"}
                 </p>
               </div>
               <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 capitalize">

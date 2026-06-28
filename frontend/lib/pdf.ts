@@ -1,56 +1,38 @@
-export async function downloadResumeAsPDF(elementId: string, filename: string = "resume") {
+export function downloadResumeAsPDF(elementId: string, filename: string = "resume") {
   const element = document.getElementById(elementId);
   if (!element) throw new Error("Resume preview not found");
 
-  // Dynamic imports avoid SSR issues
-  const html2canvas = (await import("html2canvas")).default;
-  const { jsPDF } = await import("jspdf");
+  const styleId = "print-resume-style";
+  const existing = document.getElementById(styleId);
+  if (existing) existing.remove();
 
-  // html2canvas breaks with transform + overflow-hidden — temporarily neutralize them
-  const prevTransform = element.style.transform;
-  const prevOverflow = element.style.overflow;
-  const prevBorderRadius = element.style.borderRadius;
-  element.style.transform = "none";
-  element.style.overflow = "visible";
-  element.style.borderRadius = "0";
+  const style = document.createElement("style");
+  style.id = styleId;
+  style.innerHTML = `
+    @media print {
+      body * { visibility: hidden !important; }
+      #${elementId}, #${elementId} * { visibility: visible !important; }
+      #${elementId} {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: auto !important;
+        transform: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      @page { margin: 0; size: A4 portrait; }
+    }
+  `;
+  document.head.appendChild(style);
 
-  let canvas;
-  try {
-    canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-      backgroundColor: "#ffffff",
-      scrollX: 0,
-      scrollY: -window.scrollY,
-      windowWidth: document.documentElement.scrollWidth,
-    });
-  } finally {
-    element.style.transform = prevTransform;
-    element.style.overflow = prevOverflow;
-    element.style.borderRadius = prevBorderRadius;
-  }
+  const prevTitle = document.title;
+  document.title = filename;
 
-  const imgData = canvas.toDataURL("image/png");
-  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  window.print();
 
-  const pageWidth = 210;
-  const pageHeight = 297;
-  const imgHeight = (canvas.height * pageWidth) / canvas.width;
-
-  let heightLeft = imgHeight;
-  let position = 0;
-
-  pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
-  heightLeft -= pageHeight;
-
-  while (heightLeft > 0) {
-    position -= pageHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
-    heightLeft -= pageHeight;
-  }
-
-  pdf.save(`${filename || "resume"}.pdf`);
+  document.title = prevTitle;
+  style.remove();
 }
