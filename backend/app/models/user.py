@@ -35,6 +35,8 @@ class User(Base):
     verification_token = Column(String(255), nullable=True)
     reset_password_token = Column(String(255), nullable=True)
     reset_token_expires = Column(DateTime(timezone=True), nullable=True)
+    stripe_customer_id = Column(String(255), unique=True, nullable=True)
+    stripe_subscription_id = Column(String(255), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     last_login = Column(DateTime(timezone=True), nullable=True)

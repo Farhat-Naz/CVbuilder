@@ -1,13 +1,17 @@
 "use client";
 
+import { useEffect, useState, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
+import { authService } from "@/services/auth.service";
+import { billingService } from "@/services/billing.service";
 import { CheckCircle2, Zap, Crown, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 const plans = [
@@ -16,8 +20,44 @@ const plans = [
   { id: "premium", name: "Premium", price: "$19/mo", features: ["Everything in Pro", "Analytics", "API access", "Priority support"] },
 ];
 
-export default function SettingsPage() {
-  const { user, logout } = useAuth();
+function SettingsPageContent() {
+  const { user: authUser, logout } = useAuth();
+  const [user, setUser] = useState(authUser);
+  const [pendingPlan, setPendingPlan] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    setUser(authUser);
+  }, [authUser]);
+
+  useEffect(() => {
+    const checkout = searchParams.get("checkout");
+    if (checkout === "success") {
+      toast.success("Payment received! Updating your plan…");
+      authService.getMe().then(setUser).catch(() => {});
+      router.replace("/settings");
+    } else if (checkout === "cancelled") {
+      toast.info("Checkout cancelled");
+      router.replace("/settings");
+    }
+  }, [searchParams, router]);
+
+  const handlePlanClick = async (planId: string) => {
+    setPendingPlan(planId);
+    try {
+      if (user?.subscription_plan && user.subscription_plan !== "free") {
+        const url = await billingService.createPortalSession();
+        window.location.href = url;
+      } else if (planId === "pro" || planId === "premium") {
+        const url = await billingService.createCheckoutSession(planId as "pro" | "premium");
+        window.location.href = url;
+      }
+    } catch {
+      toast.error("Couldn't start billing session. Please try again.");
+      setPendingPlan(null);
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -63,8 +103,13 @@ export default function SettingsPage() {
                   {user?.subscription_plan === plan.id ? (
                     <Button size="sm" variant="outline" className="w-full h-7 text-xs" disabled>Current</Button>
                   ) : (
-                    <Button size="sm" className="w-full h-7 text-xs bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90" onClick={() => toast.info("Payment integration coming soon!")}>
-                      {plan.id === "free" ? "Downgrade" : "Upgrade"}
+                    <Button
+                      size="sm"
+                      className="w-full h-7 text-xs bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90"
+                      disabled={pendingPlan === plan.id}
+                      onClick={() => handlePlanClick(plan.id)}
+                    >
+                      {pendingPlan === plan.id ? "Redirecting…" : plan.id === "free" ? "Downgrade" : "Upgrade"}
                     </Button>
                   )}
                 </div>
@@ -104,5 +149,13 @@ export default function SettingsPage() {
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense>
+      <SettingsPageContent />
+    </Suspense>
   );
 }
